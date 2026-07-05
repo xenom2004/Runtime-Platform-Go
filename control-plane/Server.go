@@ -5,13 +5,18 @@ import (
 	"net/http"
 )
 
-func ServerCondition(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Go Server is Running, condition nominal")
+func serverhealth(w http.ResponseWriter, r *http.Request) {
+	res := map[string]interface{}{
+		"message": "Go Server is Running, Health normal",
+	}
+	jsonhelper(w, res, 200)
 }
 
 func main() {
 
-	http.HandleFunc("/health", ServerCondition)
+	http.HandleFunc("/health", serverhealth)
+	http.HandleFunc("/status", serverstatus)
+	http.HandleFunc("/load", serverload)
 	port := 9000
 	fmt.Printf("Starting Server on port %d...\n", port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
