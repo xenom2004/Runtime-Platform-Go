@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/xenom2004/Runtime-Platform-Go/cmd/helpers"
 	"github.com/xenom2004/Runtime-Platform-Go/config"
 )
 
@@ -21,6 +22,6 @@ func serverstatus(w http.ResponseWriter, r *http.Request) {
 		Appname:     config.Appname,
 		CurrentTime: time.Now().Format(time.RFC3339),
 	}
-	jsonhelper(w, res, 200)
+	helpers.Jsonhelper(w, res, 200)
 
 }

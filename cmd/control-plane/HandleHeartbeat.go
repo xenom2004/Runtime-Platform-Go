@@ -2,8 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+
+	"github.com/xenom2004/Runtime-Platform-Go/cmd/helpers"
 )
 
 type Heartbeat struct {
@@ -34,8 +35,8 @@ func handleheartbeat(w http.ResponseWriter, r *http.Request) {
 	}
 	agentstore.SetLast_Alive(newagent.Id)
 
-	fmt.Printf("%s\n", heartbeat.Message)
+	// fmt.Printf("%s\n", heartbeat.Message)
 
-	jsonhelper(w, map[string]string{"HeartbeatResponse": heartbeat.Message}, http.StatusOK)
+	helpers.Jsonhelper(w, map[string]string{"HeartbeatResponse": heartbeat.Message}, http.StatusOK)
 
 }

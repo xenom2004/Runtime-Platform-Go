@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 	"runtime"
+
+	"github.com/xenom2004/Runtime-Platform-Go/cmd/helpers"
 )
 
 type Serverload struct {
@@ -19,6 +21,6 @@ func serverload(w http.ResponseWriter, r *http.Request) {
 		Memory:     float64(m.Alloc) / (1024 * 1024),
 	}
 
-	jsonhelper(w, res, 200)
+	helpers.Jsonhelper(w, res, 200)
 
 }

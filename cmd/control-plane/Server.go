@@ -3,17 +3,19 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/xenom2004/Runtime-Platform-Go/cmd/helpers"
 )
 
 func serverhealth(w http.ResponseWriter, r *http.Request) {
 	res := map[string]interface{}{
 		"message": "Go Server is Running, Health normal",
 	}
-	jsonhelper(w, res, http.StatusOK)
+	helpers.Jsonhelper(w, res, http.StatusOK)
 }
 
 func showagents(w http.ResponseWriter, r *http.Request) {
-	jsonhelper(w, map[string]any{"Agents": agentstore.agents, "AgentIDs": agentstore.AgentIDs}, http.StatusOK)
+	helpers.Jsonhelper(w, map[string]any{"Agents": agentstore.agents, "AgentIDs": agentstore.AgentIDs}, http.StatusOK)
 }
 
 func main() {

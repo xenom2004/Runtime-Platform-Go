@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/xenom2004/Runtime-Platform-Go/cmd/helpers"
 )
 
 type Agent struct {
@@ -68,7 +70,7 @@ func (store *AgentStore) Next() any {
 			continue
 		}
 		store.last_usedIndex = i
-		store.agents[store.AgentIDs[i]].Status = "busy"
+		// store.agents[store.AgentIDs[i]].Status = "busy"
 		return store.AgentIDs[store.last_usedIndex]
 	}
 	return nil
@@ -123,6 +125,6 @@ func handleagent(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}()
-	jsonhelper(w, map[string]string{"Registered": msg}, http.StatusOK)
+	helpers.Jsonhelper(w, map[string]string{"Registered": msg}, http.StatusOK)
 
 }

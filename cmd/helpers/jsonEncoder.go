@@ -1,4 +1,4 @@
-package main
+package helpers
 
 import (
 	"bytes"
@@ -8,21 +8,22 @@ import (
 	"time"
 )
 
-type Heartbeat struct {
-	Id      string `json:"id"`
-	Message string `json:"message"`
+func Jsonhelper(w http.ResponseWriter, data any, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(data)
 }
 
-func sendHeartbeat(url string, payload Heartbeat) {
+func JsonPost(url string, payload any) *http.Response {
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		fmt.Printf("Error json:%v\n", err)
-		return
+		return nil
 	}
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Printf("Error creating request: %v\n", err)
-		return
+		return nil
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -31,15 +32,14 @@ func sendHeartbeat(url string, payload Heartbeat) {
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("Error making request: %v\n", err)
-		return
+		return nil
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		fmt.Printf("Unexpected status code: %d\n", resp.StatusCode)
-		return
+		return nil
 	}
 
-	// fmt.Printf("Agent Id %s sent heartbeat successfully \n", payload.Id)
-
+	return resp
 }

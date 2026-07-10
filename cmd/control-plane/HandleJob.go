@@ -4,10 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/xenom2004/Runtime-Platform-Go/cmd/helpers"
 )
 
 type Job struct {
 	JobID string `json:"job_id"`
+}
+
+type AssignedJobs struct {
+	Job     Job    `json:"job"`
+	AgentId string `json:"agent_id"`
 }
 
 func handleJob(w http.ResponseWriter, r *http.Request) {
@@ -30,11 +37,17 @@ func handleJob(w http.ResponseWriter, r *http.Request) {
 	var AgentAssign = agentstore.Next()
 	if AgentAssign == nil {
 		fmt.Printf("Job %s failed to assign\n", job.JobID)
-		jsonhelper(w, map[string]string{"Failed": "No Agent Available"}, http.StatusOK)
+		helpers.Jsonhelper(w, map[string]string{"Failed": "No Agent Available"}, http.StatusOK)
+		return
+	}
+
+	resp := helpers.JsonPost("http://localhost:9001/executejob", AssignedJobs{Job: job, AgentId: AgentAssign.(string)})
+	if resp == nil {
+		helpers.Jsonhelper(w, map[string]string{"Failed": "Failed to assign job"}, http.StatusOK)
 		return
 	}
 	mes := fmt.Sprintf("Job %s assigned to Agent %s \n", job.JobID, AgentAssign)
 	fmt.Println(mes)
-	jsonhelper(w, map[string]string{"Assigned": mes}, http.StatusOK)
+	helpers.Jsonhelper(w, AssignedJobs{Job: job, AgentId: AgentAssign.(string)}, http.StatusOK)
 
 }
