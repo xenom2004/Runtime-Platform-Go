@@ -18,6 +18,10 @@ func showagents(w http.ResponseWriter, r *http.Request) {
 	helpers.Jsonhelper(w, map[string]any{"Agents": agentstore.agents, "AgentIDs": agentstore.AgentIDs}, http.StatusOK)
 }
 
+func showjobs(w http.ResponseWriter, r *http.Request) {
+	helpers.Jsonhelper(w, map[string]any{"Jobs": jobstore.jobs}, http.StatusOK)
+}
+
 func main() {
 	http.HandleFunc("/HandleAgents", handleagent)
 	http.HandleFunc("/health", serverhealth)
@@ -26,6 +30,10 @@ func main() {
 	http.HandleFunc("/agents", showagents)
 	http.HandleFunc("/HandleHeartbeat", handleheartbeat)
 	http.HandleFunc("/jobs", handleJob)
+	http.HandleFunc("/JobComplete", handleJobComplete)
+	http.HandleFunc("/getjobs", showjobs)
+	Monitor()
+
 	port := 9000
 	fmt.Printf("Starting Server on port %d...\n", port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)

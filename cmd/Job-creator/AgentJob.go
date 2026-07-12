@@ -9,7 +9,12 @@ import (
 )
 
 type Job struct {
-	JobID string `json:"job_id"`
+	JobID      string `json:"job_id"`
+	Status     string `json:"status"`
+	AgentID    string `json:"agent_id"`
+	CreatedAt  string `json:"created_at"`
+	StartedAt  string `json:"started_at"`
+	FinishedAt string `json:"finished_at"`
 }
 
 func SendJob(url string, payload Job) {

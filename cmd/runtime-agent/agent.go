@@ -9,7 +9,12 @@ import (
 )
 
 type Job struct {
-	JobID string `json:"job_id"`
+	JobID      string `json:"job_id"`
+	Status     string `json:"status"`
+	AgentID    string `json:"agent_id"`
+	CreatedAt  string `json:"created_at"`
+	StartedAt  string `json:"started_at"`
+	FinishedAt string `json:"finished_at"`
 }
 
 type Agent struct {
@@ -18,6 +23,8 @@ type Agent struct {
 	Last_Alive   string `json:"last_alive"`
 	Status       string `json:"status"`
 	pending_jobs chan Job
+	CurrentJob   *Job
+	deadstate    bool
 }
 
 func InitializeAgent(url string, heartbeatUrl string, payload Agent) {
@@ -61,6 +68,9 @@ func InitializeAgent(url string, heartbeatUrl string, payload Agent) {
 		ticker := time.NewTicker(2 * time.Second)
 		defer ticker.Stop()
 		timeout := time.After(50 * time.Second)
+		if Agents[payload.Id].deadstate == true {
+			timeout = time.After(6 * time.Second)
+		}
 		for {
 			select {
 			case <-ticker.C:
@@ -75,15 +85,16 @@ func InitializeAgent(url string, heartbeatUrl string, payload Agent) {
 }
 
 var Agents = make(map[string]*Agent)
+var controlplaneurl = "http://localhost:9000"
 
 func main() {
 
-	url := "http://localhost:9000/HandleAgents"
-	heartbeatUrl := "http://localhost:9000/HandleHeartbeat"
+	url := controlplaneurl + "/HandleAgents"
+	heartbeatUrl := controlplaneurl + "/HandleHeartbeat"
 
-	Agents["Agent01"] = &Agent{Id: "Agent01", Time_started: time.Now().Format(time.RFC3339), Status: "alive", pending_jobs: make(chan Job, 10)}
-	Agents["Agent02"] = &Agent{Id: "Agent02", Time_started: time.Now().Format(time.RFC3339), Status: "alive", pending_jobs: make(chan Job, 10)}
-	Agents["Agent03"] = &Agent{Id: "Agent03", Time_started: time.Now().Format(time.RFC3339), Status: "alive", pending_jobs: make(chan Job, 10)}
+	Agents["Agent01"] = &Agent{Id: "Agent01", Time_started: time.Now().Format(time.RFC3339), Status: "alive", pending_jobs: make(chan Job, 10), deadstate: false}
+	Agents["Agent02"] = &Agent{Id: "Agent02", Time_started: time.Now().Format(time.RFC3339), Status: "alive", pending_jobs: make(chan Job, 10), deadstate: true}
+	Agents["Agent03"] = &Agent{Id: "Agent03", Time_started: time.Now().Format(time.RFC3339), Status: "alive", pending_jobs: make(chan Job, 10), deadstate: false}
 	InitializeAgent(url, heartbeatUrl, *Agents["Agent01"])
 	InitializeAgent(url, heartbeatUrl, *Agents["Agent02"])
 	InitializeAgent(url, heartbeatUrl, *Agents["Agent03"])

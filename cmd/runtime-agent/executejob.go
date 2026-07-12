@@ -30,6 +30,7 @@ func executejob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("Recieved request for %s", assignedjob.Job.JobID)
+	Agents[assignedjob.AgentId].CurrentJob = &assignedjob.Job
 	Agents[assignedjob.AgentId].pending_jobs <- assignedjob.Job
 
 	fmt.Printf("Job %s assigned to Agent %s\n", assignedjob.Job.JobID, assignedjob.AgentId)

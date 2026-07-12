@@ -15,7 +15,14 @@ type Agent struct {
 	Time_started string `json:"time_started"`
 	Last_Alive   string `json:"last_alive"`
 	Status       string `json:"status"`
+	CurrentJob   *Job
 }
+
+const (
+	AgentAlive = "alive"
+	AgentBusy  = "busy"
+	AgentDead  = "dead"
+)
 
 type AgentStore struct {
 	mu             sync.RWMutex
@@ -48,12 +55,19 @@ func (store *AgentStore) SetLast_Alive(id string) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 	store.agents[id].Last_Alive = time.Now().Format(time.RFC3339)
+	store.agents[id].Status = AgentAlive
 }
 
-func (store *AgentStore) Dead(id string) {
+func (store *AgentStore) Status(id string, stat string) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
-	store.agents[id].Status = "dead"
+	store.agents[id].Status = stat
+}
+
+func (store *AgentStore) SetJob(id string, job *Job) {
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	store.agents[id].CurrentJob = job
 }
 
 func (store *AgentStore) Next() any {
@@ -65,12 +79,11 @@ func (store *AgentStore) Next() any {
 			return nil
 		}
 		Maxsteps--
-		if store.agents[store.AgentIDs[i]].Status == "dead" ||
-			store.agents[store.AgentIDs[i]].Status == "busy" {
+		if store.agents[store.AgentIDs[i]].Status == AgentDead ||
+			store.agents[store.AgentIDs[i]].Status == AgentBusy {
 			continue
 		}
 		store.last_usedIndex = i
-		// store.agents[store.AgentIDs[i]].Status = "busy"
 		return store.AgentIDs[store.last_usedIndex]
 	}
 	return nil
@@ -120,7 +133,7 @@ func handleagent(w http.ResponseWriter, r *http.Request) {
 
 			if time.Since(lastAliveTime) > 4*time.Second {
 				fmt.Printf("Agent ID %s is dead\n", agent.Id)
-				agentstore.Dead(agent.Id)
+				agentstore.Status(agent.Id, AgentDead)
 				return
 			}
 		}
